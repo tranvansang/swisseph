@@ -1,10 +1,14 @@
-/*******************************************************
-$Header: /home/dieter/sweph/RCS/swehouse.h,v 1.74 2008/06/16 10:07:20 dieter Exp $
-module swehouse.h
-house and (simple) aspect calculation 
+/* 
+ | $Header: /home/dieter/sweph/RCS/swejpl.h,v 1.74 2008/06/16 10:07:20 dieter Exp $
+ |
+ | Subroutines for reading JPL ephemerides.
+ | derived from testeph.f as contained in DE403 distribution July 1995.
+ | works with DE200, DE102, DE403, DE404, DE405, DE406, DE431
+ | (attention, these ephemerides do not have exactly the same reference frame)
 
-*******************************************************/
+  Authors: Dieter Koch and Alois Treindl, Astrodienst Zurich
 
+**************************************************************/
 /* Copyright (C) 1997 - 2008 Astrodienst AG, Switzerland.  All rights reserved.
 
   License conditions
@@ -59,29 +63,42 @@ house and (simple) aspect calculation
   for promoting such software, products or services.
 */
 
-struct houses {
-	  double cusp[37];
-	  double ac;
-	  double mc;
-	  double vertex;
-	  double equasc;
-	  double coasc1;
-	  double coasc2;
-	  double polasc;
-	  double sundec;	// declination of Sun for Sunshine houses
-	  char serr[AS_MAXCH];
-	};
 
-#define HOUSES 	struct houses
-#define VERY_SMALL	1E-10
+#include "sweodef.h"
 
-#define degtocs(x)    (d2l((x) * DEG))
-#define cstodeg(x)    (double)((x) * CS2DEG)
+#define J_MERCURY	0	/* jpl body indices, modified by Alois */
+#define J_VENUS		1	/* now they start at 0 and not at 1 */
+#define J_EARTH		2
+#define J_MARS		3
+#define J_JUPITER	4
+#define J_SATURN	5
+#define J_URANUS	6
+#define J_NEPTUNE	7
+#define J_PLUTO		8
+#define J_MOON		9
+#define J_SUN		10
+#define J_SBARY		11
+#define J_EMB		12
+#define J_NUT		13
+#define J_LIB		14
 
-#define sind(x) sin((x) * DEGTORAD)
-#define cosd(x) cos((x) * DEGTORAD)
-#define tand(x) tan((x) * DEGTORAD)
-#define asind(x) (asin(x) * RADTODEG)
-#define acosd(x) (acos(x) * RADTODEG)
-#define atand(x) (atan(x) * RADTODEG)
-#define atan2d(y, x) (atan2(y, x) * RADTODEG)
+/*
+ * compute position and speed at time et, for body ntarg with center
+ * ncent. rrd must be double[6] to contain the return vectors.
+ * ntarg can be all of the above, ncent all except J_NUT and J_LIB.
+ * Librations and Nutations are not affected by ncent.
+ */
+extern int swi_pleph(double et, int ntarg, int ncent, double *rrd, char *serr);
+
+/*
+ * read the ephemeris constants. ss[0..2] returns start, end and granule size.
+ * If do_show is TRUE, a list of constants is printed to stdout.
+ */
+extern void swi_close_jpl_file(void);
+
+extern int swi_open_jpl_file(double *ss, char *fname, char *fpath, char *serr);
+
+extern int32 swi_get_jpl_denum(void);
+
+extern void swi_IERS_FK5(double *xin, double *xout, int dir);
+
